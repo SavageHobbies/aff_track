@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard with Navigation</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        function Navigation() {
+            const menuItems = [
+                { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+                { id: 'applications', label: 'Applications', icon: '📝' },
+                { id: 'links', label: 'Link Manager', icon: '🔗' },
+                { id: 'ai-assistant', label: 'AI Assistant', icon: '🤖' },
+                { id: 'earnings', label: 'Earnings', icon: '💰' },
+                { id: 'settings', label: 'Settings', icon: '⚙️' },
+            ];
+
+            return (
+                <div className="bg-gray-800 text-white w-64 min-h-screen">
+                    <div className="p-4">
+                        <h2 className="text-2xl font-bold">AMS</h2>
+                    </div>
+                    <nav className="mt-8">
+                        {menuItems.map(item => (
+                            <button
+                                key={item.id}
+                                onClick={() => console.log('Clicked:', item.label)}
+                                className="block w-full px-4 py-3 text-sm text-left hover:bg-gray-700"
+                            >
+                                <span className="mr-2">{item.icon}</span>
+                                {item.label}
+                            </button>
+                        ))}
+                    </nav>
+                </div>
+            );
+        }
+
+        function Header() {
+            return (
+                <header className="bg-white shadow">
+                    <div className="max-w-7xl mx-auto py-4 px-4">
+                        <div className="flex justify-between items-center">
+                            <h1 className="text-xl font-semibold text-gray-900">
+                                Affiliate Management System
+                            </h1>
+                            <div className="flex items-center space-x-4">
+                                <button className="text-gray-500 hover:text-gray-700">
+                                    🔔
+                                </button>
+                                <button className="flex items-center space-x-2">
+                                    <span className="w-8 h-8 bg-gray-300 rounded-full"></span>
+                                    <span className="text-gray-700">Admin</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+            );
+        }
+
+        function Dashboard() {
+            const metrics = [
+                { title: 'Total Earnings', value: '$12,345', change: 12.5, icon: '💰' },
+                { title: 'Active Programs', value: '15', change: 2, icon: '🎯' },
+                { title: 'Total Clicks', value: '1,234', change: -5.2, icon: '🔗' },
+                { title: 'Conversion Rate', value: '3.2%', change: 0.8, icon: '📈' },
+            ];
+
+            return (
+                <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        {metrics.map((metric, index) => (
+                            <div key={index} className="bg-white rounded-lg shadow p-4">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-2xl">{metric.icon}</span>
+                                    <span className={`text-sm font-medium ${
+                                        metric.change > 0 ? 'text-green-600' : 'text-red-600'
+                                    }`}>
+                                        {metric.change > 0 ? '↑' : '↓'} {Math.abs(metric.change)}%
+                                    </span>
+                                </div>
+                                <h3 className="text-gray-500 text-sm">{metric.title}</h3>
+                                <p className="text-2xl font-bold">{metric.value}</p>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="bg-white p-4 rounded-lg shadow-md">
+                            <h2 className="text-lg font-semibold mb-4">Recent Applications</h2>
+                            <p className="text-gray-500">No recent applications</p>
+                        </div>
+
+                        <div className="bg-white p-4 rounded-lg shadow-md">
+                            <h2 className="text-lg font-semibold mb-4">Recent Links</h2>
+                            <p className="text-gray-500">No recent links</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function App() {
+            const [currentPage, setCurrentPage] = React.useState('dashboard');
+
+            return (
+                <div className="flex min-h-screen bg-gray-100">
+                    <Navigation />
+                    <div className="flex-1">
+                        <Header />
+                        <main>
+                            <Dashboard />
+                        </main>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

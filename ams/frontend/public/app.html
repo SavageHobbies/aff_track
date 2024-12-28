@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affiliate Management System</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="root"></div>
+
+    <script>
+        // AIHelper service
+        (function(window) {
+            'use strict';
+
+            function AIHelper() {
+                this.API_KEY = 'AIzaSyCEalrKbuNPw_8LkkpRELKccwdx7yAewfY';
+                this.API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+            }
+
+            AIHelper.prototype.generateResponse = async function(prompt) {
+                try {
+                    const response = await fetch(`${this.API_URL}?key=${this.API_KEY}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [{
+                                    text: prompt
+                                }]
+                            }]
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                        return data.candidates[0].content.parts[0].text;
+                    } else {
+                        console.error('Unexpected API response:', data);
+                        return 'Sorry, received an unexpected response from the AI service.';
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    return 'Sorry, an error occurred while processing your request.';
+                }
+            };
+
+            window.AIHelper = AIHelper;
+        })(window);
+
+        // HistoryService
+        (function(window) {
+            'use strict';
+
+            function HistoryService() {
+                this.STORAGE_KEY = 'ams_ai_history';
+            }
+
+            HistoryService.prototype.getHistory = function() {
+                try {
+                    const history = localStorage.getItem(this.STORAGE_KEY);
+                    return history ? JSON.parse(history) : [];
+                } catch (error) {
+                    console.error('Error:', error);
+                    return [];
+                }
+            };
+
+            HistoryService.prototype.addToHistory = function(interaction) {
+                try {
+                    const history = this.getHistory();
+                    const newInteraction = {
+                        ...interaction,
+                        timestamp: new Date().toISOString()
+                    };
+                    history.unshift(newInteraction);
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(history));
+                    return true;
+                } catch (error) {
+                    console.error('Error:', error);
+                    return false;
+                }
+            };
+
+            window.HistoryService = HistoryService;
+        })(window);
+    </script>
+
+    <script type="text/babel">
+        function Navigation({ onPageChange, currentPage }) {
+            const menuItems = [
+                { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+                { id: 'applications', label: 'Applications', icon: '📝' },
+                { id: 'links', label: 'Link Manager', icon: '🔗' },
+                { id: 'ai-assistant', label: 'AI Assistant', icon: '🤖' },
+                { id: 'earnings', label: 'Earnings', icon: '💰' },
+                { id: 'settings', label: 'Settings', icon: '⚙️' },
+            ];
+
+            return (
+                <div className="bg-gray-800 text-white w-64 min-h-screen">
+                    <div className="p-4">
+                        <h2 className="text-2xl font-bold">AMS</h2>
+                    </div>
+                    <nav className="mt-8">
+                        {menuItems.map(item => (
+                            <button
+                                key={item.id}
+                                onClick={() => onPageChange(item.id)}
+                                className={`block w-full px-4 py-3 text-sm text-left ${
+                                    currentPage === item.id ? 'bg-gray-700' : 'hover:bg-gray-700'
+                                }`}
+                            >
+                                <span className="mr-2">{item.icon}</span>
+                                {item.label}
+                            </button>
+                        ))}
+                    </nav>
+                </div>
+            );
+        }
+
+        function Header() {
+            return (
+                <header className="bg-white shadow">
+                    <div className="max-w-7xl mx-auto py-4 px-4">
+                        <div className="flex justify-between items-center">
+                            <h1 className="text-xl font-semibold text-gray-900">
+                                Affiliate Management System
+                            </h1>
+                            <div className="flex items-center space-x-4">
+                                <button className="text-gray-500 hover:text-gray-700">
+                                    🔔
+                                </button>
+                                <button className="flex items-center space-x-2">
+                                    <span className="w-8 h-8 bg-gray-300 rounded-full"></span>
+                                    <span className="text-gray-700">Admin</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+            );
+        }
+
+        function Dashboard() {
+            const metrics = [
+                { title: 'Total Earnings', value: '$12,345', change: 12.5, icon: '💰' },
+                { title: 'Active Programs', value: '15', change: 2, icon: '🎯' },
+                { title: 'Total Clicks', value: '1,234', change: -5.2, icon: '🔗' },
+                { title: 'Conversion Rate', value: '3.2%', change: 0.8, icon: '📈' },
+            ];
+
+            return (
+                <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        {metrics.map((metric, index) => (
+                            <div key={index} className="bg-white rounded-lg shadow p-4">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-2xl">{metric.icon}</span>
+                                    <span className={`text-sm font-medium ${
+                                        metric.change > 0 ? 'text-green-600' : 'text-red-600'
+                                    }`}>
+                                        {metric.change > 0 ? '↑' : '↓'} {Math.abs(metric.change)}%
+                                    </span>
+                                </div>
+                                <h3 className="text-gray-500 text-sm">{metric.title}</h3>
+                                <p className="text-2xl font-bold">{metric.value}</p>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="bg-white p-4 rounded-lg shadow-md">
+                            <h2 className="text-lg font-semibold mb-4">Recent Applications</h2>
+                            <p className="text-gray-500">No recent applications</p>
+                        </div>
+
+                        <div className="bg-white p-4 rounded-lg shadow-md">
+                            <h2 className="text-lg font-semibold mb-4">Recent Links</h2>
+                            <p className="text-gray-500">No recent links</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function AIAssistant() {
+            const [prompt, setPrompt] = React.useState('');
+            const [response, setResponse] = React.useState('');
+            const [isLoading, setIsLoading] = React.useState(false);
+            const [error, setError] = React.useState('');
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                if (!prompt.trim()) return;
+
+                setIsLoading(true);
+                setError('');
+                try {
+                    const aiHelper = new window.AIHelper();
+                    const result = await aiHelper.generateResponse(prompt);
+                    setResponse(result);
+                    
+                    const historyService = new window.HistoryService();
+                    historyService.addToHistory({ prompt, response: result });
+                } catch (error) {
+                    console.error('Error:', error);
+                    setError('An error occurred while processing your request.');
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            return (
+                <div className="max-w-4xl mx-auto p-6">
+                    <h1 className="text-2xl font-bold mb-6">AI Assistant</h1>
+                    
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div>
+                            <textarea
+                                value={prompt}
+                                onChange={(e) => setPrompt(e.target.value)}
+                                className="w-full p-3 border rounded-lg shadow-sm"
+                                rows="4"
+                                placeholder="Enter your prompt here..."
+                                disabled={isLoading}
+                            />
+                        </div>
+                        
+                        <div>
+                            <button
+                                type="submit"
+                                disabled={isLoading || !prompt.trim()}
+                                className={`px-4 py-2 rounded font-medium ${
+                                    isLoading || !prompt.trim()
+                                        ? 'bg-gray-300 cursor-not-allowed'
+                                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                                }`}
+                            >
+                                {isLoading ? 'Processing...' : 'Submit'}
+                            </button>
+                        </div>
+                    </form>
+
+                    {error && (
+                        <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                            {error}
+                        </div>
+                    )}
+
+                    {response && !error && (
+                        <div className="mt-6 bg-white p-4 rounded-lg shadow">
+                            <h2 className="font-bold mb-2">Response:</h2>
+                            <div className="whitespace-pre-wrap">{response}</div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        function PlaceholderPage({ title }) {
+            return (
+                <div className="p-6">
+                    <h1 className="text-2xl font-bold mb-4">{title}</h1>
+                    <p className="text-gray-600">This page is coming soon...</p>
+                </div>
+            );
+        }
+
+        function App() {
+            const [currentPage, setCurrentPage] = React.useState('dashboard');
+
+            const renderPage = () => {
+                switch (currentPage) {
+                    case 'dashboard':
+                        return <Dashboard />;
+                    case 'ai-assistant':
+                        return <AIAssistant />;
+                    case 'applications':
+                        return <PlaceholderPage title="Applications" />;
+                    case 'links':
+                        return <PlaceholderPage title="Link Manager" />;
+                    case 'earnings':
+                        return <PlaceholderPage title="Earnings" />;
+                    case 'settings':
+                        return <PlaceholderPage title="Settings" />;
+                    default:
+                        return <Dashboard />;
+                }
+            };
+
+            return (
+                <div className="flex min-h-screen bg-gray-100">
+                    <Navigation onPageChange={setCurrentPage} currentPage={currentPage} />
+                    <div className="flex-1">
+                        <Header />
+                        <main>
+                            {renderPage()}
+                        </main>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

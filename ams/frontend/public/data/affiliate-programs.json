@@ -1,0 +1,36 @@
+{
+  "categories": [
+    {
+      "id": "tech",
+      "name": "Tech & Electronics",
+      "programs": [
+        {
+          "id": "amazon",
+          "name": "Amazon Associates",
+          "url": "https://affiliate-program.amazon.com/",
+          "commission": "1-10%",
+          "products": ["Laptops", "Phones", "Accessories"],
+          "requirements": "Need website/social media",
+          "paymentThreshold": "$10",
+          "paymentMethods": ["Direct Deposit", "Check"]
+        }
+      ]
+    },
+    {
+      "id": "software",
+      "name": "Digital & Software",
+      "programs": [
+        {
+          "id": "shopify",
+          "name": "Shopify Partners",
+          "url": "https://www.shopify.com/partners",
+          "commission": "200% first 2 months",
+          "products": ["E-commerce Platform", "Themes"],
+          "requirements": "Web development experience preferred",
+          "paymentThreshold": "$25",
+          "paymentMethods": ["PayPal", "Bank Transfer"]
+        }
+      ]
+    }
+  ]
+}
